@@ -7,7 +7,7 @@ import org.springframework.web.servlet.view.*;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan("zhulin.project.qyyportal.web")
+@ComponentScan("zhulin.project.serviceportal.web")
 public class WebConfig extends WebMvcConfigurerAdapter{
 	@Bean
 	public ViewResolver viewResolver(){

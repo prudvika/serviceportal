@@ -22,21 +22,31 @@ import zhulin.project.serviceportal.DeviceType;
 
 @Component
 public class DeviceService implements DeviceManager {
-	private String dmServerURL;
 	private DeviceTypeManager deviceTypeManager;
+	private WebTarget base;
 	
 	public DeviceService(String dmServerURL,DeviceTypeManager deviceTypeManager){
-		this.dmServerURL=dmServerURL;
+		Client client=ClientBuilder.newClient();
+		base=client.target(dmServerURL);
+		
 		this.deviceTypeManager=deviceTypeManager;
+	}
+	
+	@Override
+	public List<Device> loadDevices(){
+		List<Device> result=new ArrayList<Device>();
+		List<DeviceType> deviceTypes=deviceTypeManager.loadDeviceTypes();
+		for(DeviceType deviceType:deviceTypes){
+			result.addAll(loadDevices(deviceType.getName()));
+		}
+		
+		return result;
 	}
 
 	@Override
 	public List<Device> loadDevices(String deviceTypeName) {
 		List<Device> result=new ArrayList<Device>();
 		DeviceType deviceType=deviceTypeManager.loadDeviceType(deviceTypeName);
-		
-		Client client=ClientBuilder.newClient();
-		WebTarget base=client.target(this.dmServerURL);
 		
 		Response response=base.path("dmrest/devices/type/"+deviceTypeName).request(MediaType.APPLICATION_JSON).get();
 		JsonArray array=response.readEntity(JsonArray.class);
@@ -49,7 +59,7 @@ public class DeviceService implements DeviceManager {
 				}
 			}
 			
-			result.add(new Device(object.getInt("id"),object.getString("name"),deviceAttributes));
+			result.add(new Device(object.getInt("id"),object.getString("name"),deviceTypeName,deviceAttributes));
 		}
 		
 		return result;
