@@ -24,6 +24,7 @@ import zhulin.project.serviceportal.DashboardObjectMapping;
 import zhulin.project.serviceportal.data.DashboardManager;
 import zhulin.project.serviceportal.data.DeviceManager;
 import zhulin.project.serviceportal.data.DeviceTypeManager;
+import zhulin.project.serviceportal.data.ServiceSettings;
 
 @Controller
 @RequestMapping("/dashboardmanager")
@@ -31,13 +32,15 @@ public class MonitorServiceController {
 	private DashboardManager dashboardManager;
 	private DeviceTypeManager deviceTypeManager;
 	private DeviceManager deviceManager;
+	private ServiceSettings settings;
 
 	@Autowired
 	public MonitorServiceController(DashboardManager dashboardManager, 
-			DeviceTypeManager deviceTypeManager,DeviceManager deviceManager) {
+			DeviceTypeManager deviceTypeManager,DeviceManager deviceManager,ServiceSettings settings) {
 		this.dashboardManager = dashboardManager;
 		this.deviceTypeManager = deviceTypeManager;
 		this.deviceManager=deviceManager;
+		this.settings=settings;
 	}
 
 	@RequestMapping(method = RequestMethod.GET)
@@ -117,6 +120,10 @@ public class MonitorServiceController {
 	
 	@RequestMapping(value = "/dashboardeditor", method = RequestMethod.GET)
 	public String editDashboard(@RequestParam(value="name") String dashboardName,Model model){
+		String msWebSocketURL=settings.getMSServiceURL().replaceFirst("http", "ws")+
+				"/websocket/dashboardsession";
+		
+		model.addAttribute("msWebSocketURL",msWebSocketURL);
 		model.addAttribute(deviceTypeManager.loadDeviceTypes());
 		model.addAttribute(deviceManager.loadDevices());
 		model.addAttribute(dashboardManager.loadDashboard(dashboardName));
@@ -133,6 +140,7 @@ public class MonitorServiceController {
 		for(String deviceId:monitorDevices){
 			dashboard.getDevices().add(Integer.parseInt(deviceId));
 		}
+		dashboardManager.updateDashboard(dashboard);
 		
 		return "redirect:/dashboardmanager/dashboardeditor?name="+dashboardName;
 	}

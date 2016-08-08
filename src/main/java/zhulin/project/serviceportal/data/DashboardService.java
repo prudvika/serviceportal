@@ -28,20 +28,27 @@ import zhulin.project.serviceportal.DashboardObject;
 import zhulin.project.serviceportal.web.MonitorServiceNotAvailableException;
 
 public class DashboardService implements DashboardManager {
-	private WebTarget base;
+	private Client client=ClientBuilder.newClient();
+	private ServiceSettings settings;
 	
-	public DashboardService(String monitorServiceURL){
-		Client client=ClientBuilder.newClient();
-		this.base=client.target(monitorServiceURL);
+	public DashboardService(ServiceSettings settings){
+		this.settings=settings;
 	}
 	
 	@Override
 	public void updateDashboard(Dashboard dashboard){
-		
+		WebTarget base=client.target(settings.getMSServiceURL());
+		JsonObject object=convertFromDashboard(dashboard);
+		Response response=base.path("dashrest/dashboards/dashboard/"+dashboard.getName())
+				.request(MediaType.APPLICATION_JSON).post(Entity.json(object));
+		if(response.getStatus()!=200){
+			throw new MonitorServiceNotAvailableException();
+		}
 	}
 	
 	@Override
 	public Dashboard loadDashboard(String dashboardName){
+		WebTarget base=client.target(settings.getMSServiceURL());
 		Response response=base.path("dashrest/dashboards/dashboard/"+dashboardName)
 				.request(MediaType.APPLICATION_JSON).get();
 		if(response.getStatus()!=200){
@@ -55,6 +62,7 @@ public class DashboardService implements DashboardManager {
 	public List<Dashboard> loadDashboards() {
 		List<Dashboard> dashboards=new ArrayList<Dashboard>();
 		
+		WebTarget base=client.target(settings.getMSServiceURL());
 		Response response=base.path("dashrest/dashboards").request(MediaType.APPLICATION_JSON).get();
 		if(response.getStatus()!=200){
 			throw new MonitorServiceNotAvailableException();
@@ -67,8 +75,23 @@ public class DashboardService implements DashboardManager {
 		return dashboards;
 	}
 	
+	private static JsonObject convertFromDashboard(Dashboard dashboard){
+		JsonObjectBuilder objectBuilder=Json.createObjectBuilder()
+				.add("name", dashboard.getName())
+				.add("author", dashboard.getAuthor());
+		
+		JsonArrayBuilder arrayBuilder=Json.createArrayBuilder();
+		for(int deviceId:dashboard.getDevices()){
+			arrayBuilder.add(Json.createObjectBuilder()
+					.add("deviceId", deviceId));
+		}
+		objectBuilder.add("devices", arrayBuilder);
+		
+		return objectBuilder.build();
+	}
+	
 	private static Dashboard convertFromJson(JsonObject object){
-		List<Integer> devices=new ArrayList<Integer>();
+		Set<Integer> devices=new HashSet<Integer>();
 		for(JsonValue value:object.getJsonArray("devices")){
 			devices.add(((JsonObject)value).getInt("deviceId"));
 		}
@@ -82,6 +105,7 @@ public class DashboardService implements DashboardManager {
 				.add("name", dashboard.getName())
 				.add("author", dashboard.getAuthor());
 		
+		WebTarget base=client.target(settings.getMSServiceURL());
 		Response response=base.path("dashrest/dashboards/dashboard/"+dashboard.getName())
 				.request(MediaType.APPLICATION_JSON)
 				.post(Entity.json(objectBuilder.build()));
@@ -92,6 +116,7 @@ public class DashboardService implements DashboardManager {
 
 	@Override
 	public DashboardObjectMapping loadDashboardMapping(String deviceType) {
+		WebTarget base=client.target(settings.getMSServiceURL());
 		Response response=base.path("dashrest/config/mapping/"+deviceType)
 				.request(MediaType.APPLICATION_JSON).get();
 		if(response.getStatus()==204){
@@ -159,6 +184,7 @@ public class DashboardService implements DashboardManager {
 		}
 		objectBuilder.add("mappings", objectMappings);
 		
+		WebTarget base=client.target(settings.getMSServiceURL());
 		Response response=base.path("dashrest/config/mapping/"+objectMapping.getDeviceType())
 				.request(MediaType.APPLICATION_JSON).post(Entity.json(objectBuilder.build()));
 		if(response.getStatus()!=200){
@@ -168,6 +194,7 @@ public class DashboardService implements DashboardManager {
 
 	@Override
 	public DashboardObject loadDashboardObject(String dashboardObject) {
+		WebTarget base=client.target(settings.getMSServiceURL());
 		Response response=base.path("dashrest/config/dashboardobject/"+dashboardObject)
 				.request(MediaType.APPLICATION_JSON).get();
 		if(response.getStatus()==204){
@@ -176,13 +203,14 @@ public class DashboardService implements DashboardManager {
 			throw new MonitorServiceNotAvailableException();
 		}
 		JsonObject object=response.readEntity(JsonObject.class);
-		return this.convertJsonToDashboardObject(object);
+		return convertJsonToDashboardObject(object);
 	}
 	
 	@Override
 	public List<DashboardObject> loadDashboardObjects() {
 		List<DashboardObject> result=new ArrayList<DashboardObject>();
 		
+		WebTarget base=client.target(settings.getMSServiceURL());
 		Response response=base.path("dashrest/config/dashboardobjects")
 				.request(MediaType.APPLICATION_JSON).get();
 		if(response.getStatus()!=200){
@@ -192,13 +220,13 @@ public class DashboardService implements DashboardManager {
 		for(JsonValue value:array){
 			JsonObject object=(JsonObject)value;
 			
-			result.add(this.convertJsonToDashboardObject(object));
+			result.add(convertJsonToDashboardObject(object));
 		}
 		
 		return result;
 	}
 	
-	private DashboardObject convertJsonToDashboardObject(JsonObject object){
+	private static DashboardObject convertJsonToDashboardObject(JsonObject object){
 		String dashboardObjectName=object.getString("name");
 		Set<DashboardAttribute> properties=new HashSet<DashboardAttribute>();
 		for(JsonValue value2:object.getJsonArray("properties")){

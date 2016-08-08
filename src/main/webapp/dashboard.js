@@ -230,6 +230,7 @@
 	var Session = {
 		socket : null,
 		connect : function(host) {
+			Dashboard.message.push('Connect to '+host+'...');
 			if ('WebSocket' in window) {
 				Session.socket = new WebSocket(host);
 			} else if ('MozWebSocket' in window) {
@@ -262,15 +263,16 @@
 				Dashboard.draw();
 			};
 		},
-		initialize : function() {
+		/*initialize : function() {
 			if (window.location.protocol == 'http:') {
-				Dashboard.message.push('Connect to ws://'
-						+ window.location.host
+				Dashboard.message.push('Connect to ws://192.168.31.232:81'
+//						+ window.location.host
 						+ '/monitorservice-0.1/websocket/dashboardsession...');
-				Session.connect('ws://' + window.location.host
+				Session.connect('ws://192.168.31.232:81' 
+//						+ window.location.host
 						+ '/monitorservice-0.1/websocket/dashboardsession');
 			}
-		},
+		},*/
 		sendMessage : function(message) {
 			Session.socket.send(message);
 		}
@@ -281,6 +283,6 @@
 	 **************************************************************************/
 	window.onload = function() {
 		Dashboard.setup();
-		Session.initialize();
+		//Session.initialize();
 		//Session.sendMessage("SetDashboard:Test");
 	};

@@ -2,6 +2,7 @@ package zhulin.project.serviceportal;
 
 import java.util.Set;
 
+
 public class DashboardObject {
 	private String name;
 	private Set<DashboardAttribute> properties;

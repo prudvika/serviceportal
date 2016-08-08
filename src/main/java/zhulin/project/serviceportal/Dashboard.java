@@ -1,16 +1,17 @@
 package zhulin.project.serviceportal;
 
-import java.util.List;
+import java.util.Set;
+
 
 public class Dashboard {
 	private String name;
 	private String author;
-	private List<Integer> devices;
+	private Set<Integer> devices;
 	
 	public Dashboard(){
 	}
 	
-	public Dashboard(String name,String author,List<Integer> devices){
+	public Dashboard(String name,String author,Set<Integer> devices){
 		this.name=name;
 		this.author=author;
 		this.devices=devices;
@@ -32,7 +33,7 @@ public class Dashboard {
 		this.author=author;
 	}
 	
-	public List<Integer> getDevices(){
+	public Set<Integer> getDevices(){
 		return this.devices;
 	}
 }

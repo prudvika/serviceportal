@@ -3,6 +3,7 @@ package zhulin.project.serviceportal;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+
 public class Attribute {
 	@NotNull
 	@Size(min=1,max=20,message="{attribute.name}")

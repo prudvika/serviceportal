@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+<tiles-definitions>
+   <definition name="base" template="/WEB-INF/layout/page.jsp">
+     <put-attribute name="header" value="/WEB-INF/layout/header.jsp" />
+     <put-attribute name="footer" value="/WEB-INF/layout/footer.jsp" />
+   </definition>
+   <definition name="home" extends="base">
+     <put-attribute name="body" value="/WEB-INF/views/home.jsp" />
+   </definition>
+   
+   <definition name="login" extends="base">
+     <put-attribute name="body" value="/WEB-INF/views/login.jsp" />
+   </definition>
+   
+   <definition name="settings" extends="base">
+     <put-attribute name="body" value="/WEB-INF/views/settings.jsp" />
+   </definition>
+   
+   <definition name="devicetypemanager" extends="base">
+     <put-attribute name="body" value="/WEB-INF/views/devicetypemanager.jsp" />
+   </definition>
+   
+   <definition name="devicemanager" extends="base">
+     <put-attribute name="body" value="/WEB-INF/views/devicemanager.jsp" />
+   </definition>
+   
+   <definition name="dashboardsettings" extends="base">
+     <put-attribute name="body" value="/WEB-INF/views/dashboardsettings.jsp" />
+   </definition>
+   
+   <definition name="dashboardmanager" extends="base">
+     <put-attribute name="body" value="/WEB-INF/views/dashboardmanager.jsp" />
+   </definition>
+   
+   <definition name="dashboardeditor" extends="base">
+     <put-attribute name="body" value="/WEB-INF/views/dashboardeditor.jsp" />
+   </definition>
+   
+   <definition name="device" extends="base">
+     <put-attribute name="body" value="/WEB-INF/views/device.jsp" />
+   </definition>
+</tiles-definitions>

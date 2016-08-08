@@ -26,20 +26,20 @@ import zhulin.project.serviceportal.web.DMServiceNotAvailableException;
 
 @Component
 public class DeviceTypeService implements DeviceTypeManager {
-	private String dmServerURL;
+	private Client client = ClientBuilder.newClient();
+	private ServiceSettings settings;
 
-	public DeviceTypeService(String dmServerURL) {
-		this.dmServerURL = dmServerURL;
+	public DeviceTypeService(ServiceSettings settings) {
+		this.settings = settings;
 	}
 
 	@Override
 	public List<DeviceType> loadDeviceTypes() {
 		List<DeviceType> result = new ArrayList<DeviceType>();
-		Client client = ClientBuilder.newClient();
-		WebTarget base = client.target(this.dmServerURL);
 
+		WebTarget base = client.target(settings.getDMServiceURL());
 		Response response = base.path("dmrest/devicetypes").request(MediaType.APPLICATION_JSON).get();
-		if(response.getStatus()!=200){
+		if (response.getStatus() != 200) {
 			throw new DMServiceNotAvailableException();
 		}
 		JsonArray array = response.readEntity(JsonArray.class);
@@ -52,12 +52,10 @@ public class DeviceTypeService implements DeviceTypeManager {
 
 	@Override
 	public DeviceType loadDeviceType(String deviceType) {
-		Client client = ClientBuilder.newClient();
-		WebTarget base = client.target(this.dmServerURL);
-
+		WebTarget base = client.target(settings.getDMServiceURL());
 		Response response = base.path("dmrest/devicetypes/type/" + deviceType).request(MediaType.APPLICATION_JSON)
 				.get();
-		if(response.getStatus()!=200){
+		if (response.getStatus() != 200) {
 			throw new DMServiceNotAvailableException();
 		}
 		JsonObject object = response.readEntity(JsonObject.class);
@@ -65,56 +63,54 @@ public class DeviceTypeService implements DeviceTypeManager {
 	}
 
 	@Override
-	public void addDeviceTypeAttribute(String deviceType, Attribute attribute) {
-		Client client = ClientBuilder.newClient();
-		WebTarget base = client.target(this.dmServerURL);
-		
+	public void addDeviceTypeAttributes(String deviceType, List<Attribute> attributes) {
 		JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
-		JsonObjectBuilder objectBuilder = Json.createObjectBuilder()
-				.add("attribute", attribute.getName())
-				.add("type", attribute.getType())
-				.add("keepHistory", attribute.getKeepHistory());
-		if(attribute.getDataField()!=null){
-			objectBuilder.add("dataField", attribute.getDataField());
+		for (Attribute attribute : attributes) {
+			JsonObjectBuilder objectBuilder = Json.createObjectBuilder()
+					.add("attribute", attribute.getName())
+					.add("type", attribute.getType())
+					.add("keepHistory", attribute.getKeepHistory());
+			if (attribute.getDataField() != null) {
+				objectBuilder.add("dataField", attribute.getDataField());
+			}
+			arrayBuilder.add(objectBuilder);
 		}
-		arrayBuilder.add(objectBuilder);
+
+		WebTarget base = client.target(settings.getDMServiceURL());
 		Response response = base.path("dmrest/devicetypes/type/" + deviceType + "/attributes")
 				.request(MediaType.APPLICATION_JSON).post(Entity.json(arrayBuilder.build()));
-		System.out.println(String.format("Response for adding attributes for the device type %s : %d",deviceType,response.getStatus()));
-		if(response.getStatus()!=200){
+		System.out.println(String.format("Response for adding attributes for the device type %s : %d", deviceType,
+				response.getStatus()));
+		if (response.getStatus() != 200) {
 			throw new DMServiceNotAvailableException();
 		}
 	}
 
 	@Override
 	public void updateDataFile(String deviceType, String dataFile) {
-		Client client=ClientBuilder.newClient();
-		WebTarget base=client.target(this.dmServerURL);
-		
-		Response response=base.path("dmrest/devicetypes/type/"+deviceType+"/datafile")
+		WebTarget base = client.target(settings.getDMServiceURL());
+		Response response = base.path("dmrest/devicetypes/type/" + deviceType + "/datafile")
 				.request(MediaType.APPLICATION_JSON).post(Entity.text(dataFile));
-		if(response.getStatus()!=200){
+		if (response.getStatus() != 200) {
 			throw new DMServiceNotAvailableException();
 		}
-		
+
 	}
 
 	@Override
 	public void createDeviceType(DeviceType deviceType) {
-		System.out.println("Try to create the new device type:"+deviceType.getName());
+		System.out.println("Try to create the new device type:" + deviceType.getName());
 		// Create the device type first
-		Client client=ClientBuilder.newClient();
-		WebTarget base=client.target(this.dmServerURL);
-		
-		Response response=base.path("dmrest/devicetypes/type/"+deviceType.getName())
+		WebTarget base = client.target(settings.getDMServiceURL());
+		Response response = base.path("dmrest/devicetypes/type/" + deviceType.getName())
 				.request(MediaType.APPLICATION_JSON).put(Entity.text(""));
-		if(response.getStatus()!=200){
+		if (response.getStatus() != 200) {
 			throw new DMServiceNotAvailableException();
 		}
-		
+
 		// Set the data file
-		System.out.println("Try to set the data file to "+deviceType.getDataFile());
-		this.updateDataFile(deviceType.getName(),deviceType.getDataFile());
+		System.out.println("Try to set the data file to " + deviceType.getDataFile());
+		this.updateDataFile(deviceType.getName(), deviceType.getDataFile());
 	}
 
 }

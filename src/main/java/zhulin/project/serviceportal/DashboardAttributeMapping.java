@@ -1,5 +1,6 @@
 package zhulin.project.serviceportal;
 
+
 public class DashboardAttributeMapping {
 	private String dashboardAttribute;
 	private String deviceAttribute;

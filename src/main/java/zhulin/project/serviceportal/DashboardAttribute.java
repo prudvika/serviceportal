@@ -1,5 +1,6 @@
 package zhulin.project.serviceportal;
 
+
 public class DashboardAttribute {
 	private String name;
 	private String type;

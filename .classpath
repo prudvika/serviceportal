@@ -11,5 +11,8 @@
 	<classpathentry kind="lib" path="/Users/zhulin/.m2/repository/javax/ws/rs/javax.ws.rs-api/2.0.1/javax.ws.rs-api-2.0.1.jar"/>
 	<classpathentry kind="lib" path="/Applications/Java_Lib/javax.json-ri-1.0/lib/javax.json-1.0.jar"/>
 	<classpathentry kind="lib" path="/Users/zhulin/.m2/repository/javax/validation/validation-api/1.1.0.Final/validation-api-1.1.0.Final.jar"/>
+	<classpathentry kind="lib" path="/Users/zhulin/.m2/repository/org/springframework/security/spring-security-web/4.1.1.RELEASE/spring-security-web-4.1.1.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/Users/zhulin/.m2/repository/org/springframework/security/spring-security-core/4.1.1.RELEASE/spring-security-core-4.1.1.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/Users/zhulin/.m2/repository/org/springframework/security/spring-security-config/4.1.1.RELEASE/spring-security-config-4.1.1.RELEASE.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
